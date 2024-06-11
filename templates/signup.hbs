@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page | Nilanjan Ghosht</title>
+    <link rel="stylesheet" href="home.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+     <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Ensure canvas is behind other elements */
+            pointer-events: none; /* Prevent canvas from intercepting clicks */
+        }
+         .wrapper {
+            position: relative;
+            z-index: 1; /* Ensure wrapper is in front of the canvas */
+        }
+        </style>
+        </head>
+        <body>
+            <canvas></canvas>
+    <div class="wrapper">
+        <form action="/signup" method="POST">
+            <h1>Sign UP</h1>
+            <div class="input-box">
+                <input type="text" name="name" placeholder="Name" required>
+                <i class='bx bxs-user-badge'></i>
+            </div>
+            <div class="input-box">
+                <input type="password" name="password" placeholder="Password" required>
+                <i class='bx bxs-lock' ></i>
+            </div>
+            <div class="remember-forgot">
+                <label><input type="checkbox">Remember Me</label>
+                <a href="/">Go back to login page</a>
+            </div>
+            <button type="submit" class="btn">Sign UP</button>
+            </div>
+        </form>
+    </div>
+    <script> 
+         const canvas = document.querySelector("canvas");
+        const ctx = canvas.getContext("2d");
+
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function resetTransform() {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+        }
+
+        setCanvasSize();
+        resetTransform();
+
+        let maxLevel = 5;
+        let branches = 2;
+        let sides = 5;
+        let gapBetweenTwoBranches = Math.random() * 150 + 150;
+        let lengthOfTheBranches = Math.random() * 150 + 150;
+        let spread = Math.random();
+        let angle = Math.PI * 2 * spread;
+
+        function drawLine(level) {
+            if (level > maxLevel) return;
+
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(lengthOfTheBranches, 0);
+            ctx.stroke();
+
+            for (let i = 1; i <= branches; i++) {
+                ctx.save();
+                ctx.translate(gapBetweenTwoBranches * i, 0);
+                ctx.scale(0.5, 0.5);
+
+                ctx.save();
+                ctx.rotate(angle);
+                drawLine(level + 1);
+                ctx.restore();
+
+                ctx.save();
+                ctx.rotate(-angle);
+                drawLine(level + 1);
+                ctx.restore();
+
+                ctx.restore();
+            }
+        }
+
+        function drawPattern() {
+            ctx.clearRect(-canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+            for (let i = 0; i < sides; i++) {
+                drawLine(0);
+                ctx.rotate((Math.PI * 2) / sides);
+            }
+        }
+
+        drawPattern();
+
+        window.addEventListener("click", () => {
+            maxLevel = 5;
+            branches = 2;
+            sides = 5;
+            gapBetweenTwoBranches = Math.random() * 150 + 150;
+            lengthOfTheBranches = Math.random() * 150 + 150;
+            spread = Math.random();
+            angle = Math.PI * 2 * spread;
+
+            resetTransform();
+            drawPattern();
+        });
+
+        window.addEventListener("resize", () => {
+            setCanvasSize();
+            resetTransform();
+            drawPattern();
+        });
+    </script>
+</body>
+</html>
