@@ -6,6 +6,6 @@
     { "src": "/(.*)", "dest": "/src/index.js" }
   ],
   "env": {
-    "MONGO_URI": "mongodb+srv://arko:<arko>@cluster0.cfvcc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "MONGO_URI": "mongodb+srv://arko:arko@cluster0.cfvcc.mongodb.net/LoginFormPractice?retryWrites=true&w=majority"
   }
 }
