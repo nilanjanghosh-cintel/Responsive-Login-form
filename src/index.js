@@ -1,13 +1,27 @@
 const express = require("express");
 const path = require("path");
-const app = express();
-const LogInCollection = require("./mongodb");
-const hbs = require("hbs")
+const mongoose = require("mongoose");
+const LogInCollection = require("./mongodb"); // Ensure this is the correct path to your MongoDB model
+const hbs = require("hbs");
 const port = process.env.PORT || 3000;
 
+// Connect to MongoDB
+const mongoUri = process.env.MONGODB_URI; // Ensure this is set in your environment variables
+mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+        console.log('Mongoose connected');
+    })
+    .catch((error) => {
+        console.error('MongoDB connection error:', error);
+    });
+
+const app = express();
+
+// Middleware for parsing JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Set up view engine and paths
 const templatePath = path.join(__dirname, '../templates');
 const publicPath = path.join(__dirname, '../public');
 console.log(publicPath);
@@ -16,48 +30,48 @@ app.set('view engine', 'hbs');
 app.set('views', templatePath);
 app.use(express.static(publicPath));
 
+// Render signup page
 app.get('/signup', (req, res) => {
     res.render('signup');
 });
 
-app.get('/', (req, res) => {
-    res.render('login');
-});
-
-app.post('/signup', async (req, res) => {
-    try {
-        const data = {
-            name: req.body.name,
-            password: req.body.password
-        };
-
-        const checking = await LogInCollection.findOne({ name: req.body.name });
-
-        if (checking && checking.password === req.body.password) {
-            return res.send("User details already exist");
-        } else {
-            await LogInCollection.insertMany([data]);
-        }
-
-        res.status(201).render("home", {
-            naming: req.body.name
-        });
-    } catch (error) {
-        console.error("Error occurred during signup:", error);
-        res.send("Wrong inputs");
-    }
-});
-
+// Render login page
 app.get('/', (req, res) => {
     res.render('login', { errorMessage: null }); // Ensure no error message on initial load
 });
 
+// Handle signup
+app.post('/signup', async (req, res) => {
+    try {
+        const { name, password } = req.body; // Destructure for clarity
+
+        // Check if the user already exists
+        const existingUser = await LogInCollection.findOne({ name });
+        if (existingUser) {
+            return res.send("User details already exist"); // Changed response for clarity
+        }
+
+        // Create new user
+        const newUser = new LogInCollection({ name, password });
+        await newUser.save(); // Use save() instead of insertMany for a single document
+
+        res.status(201).render("home", {
+            naming: name
+        });
+    } catch (error) {
+        console.error("Error occurred during signup:", error);
+        res.status(500).send("An error occurred during signup"); // More specific error message
+    }
+});
+
+// Handle login
 app.post('/login', async (req, res) => {
     try {
-        const check = await LogInCollection.findOne({ name: req.body.name });
+        const { name, password } = req.body; // Destructure for clarity
 
-        if (check && check.password === req.body.password) {
-            res.status(201).render("home", { naming: `${req.body.name}`, successMessage: "Login successful!" });
+        const user = await LogInCollection.findOne({ name });
+        if (user && user.password === password) {
+            res.status(200).render("home", { naming: name, successMessage: "Login successful!" });
         } else {
             res.render("login", { errorMessage: "Incorrect password" });
         }
@@ -67,8 +81,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-
-
+// Start the server
 app.listen(port, () => {
-    console.log('Port connected');
+    console.log(`Server running on port ${port}`);
 });
