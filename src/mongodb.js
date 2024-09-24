@@ -1,24 +1,28 @@
-const mongoose=require("mongoose")
+const mongoose = require("mongoose");
 
-mongoose.connect("mongodb+srv://arko:arko@cluster0.cfvcc.mongodb.net/LoginFormPractice?retryWrites=true&w=majority")
-.then(()=>{
-    console.log('mongoose connected');
-})
-.catch((e)=>{
-    console.log('failed');
-})
+// Use the environment variable for the MongoDB connection string
+const mongoUri = process.env.MONGODB_URI;
 
-const logInSchema=new mongoose.Schema({
-    name:{
-        type:String,
-        required:true
+mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Mongoose connected');
+  })
+  .catch((e) => {
+    console.error('Connection failed', e);
+  });
+
+const logInSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
     },
-    password:{
-        type:String,
-        required:true
+    password: {
+        type: String,
+        required: true
     }
-})
+});
 
-const LogInCollection=new mongoose.model('LogInCollection',logInSchema)
+const LogInCollection = mongoose.model('LogInCollection', logInSchema);
 
-module.exports=LogInCollection
+module.exports = LogInCollection;
+
