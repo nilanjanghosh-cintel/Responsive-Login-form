@@ -1,43 +1,24 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const mongoose=require("mongoose")
 
-mongoose.connect("mongodb://localhost:27017/LoginFormPractice", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose.connect("mongodb://localhost:27017/LoginFormPractice")
+.then(()=>{
+    console.log('mongoose connected');
 })
-  .then(() => {
-    console.log("Mongoose connected successfully.");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error: ", err.message);
-  });
+.catch((e)=>{
+    console.log('failed');
+})
 
-// Define the schema for the login collection
-const logInSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-});
-
-// Hash password before saving to the database
-logInSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    try {
-      const salt = await bcrypt.genSalt(10);
-      this.password = await bcrypt.hash(this.password, salt);
-    } catch (err) {
-      return next(err);
+const logInSchema=new mongoose.Schema({
+    name:{
+        type:String,
+        required:true
+    },
+    password:{
+        type:String,
+        required:true
     }
-  }
-  next();
-});
+})
 
-// Create the model
-const LogInCollection = mongoose.model("LogInCollection", logInSchema);
+const LogInCollection=new mongoose.model('LogInCollection',logInSchema)
 
-module.exports = LogInCollection;
+module.exports=LogInCollection
